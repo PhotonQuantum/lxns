@@ -73,10 +73,6 @@ def post_os_install(rootdir):
     with open(os.path.join(rootdir, "etc/ssh/sshd_config"), mode="a") as f:
         f.write("PermitRootLogin yes")
 
-def iptables_patch():
-    iptables_config = subprocess.run(["iptables-save"], capture_output=True).stdout.decode("utf-8")
-    iptables_config = iptables_config.replace("LOCAL", "BROADCAST")
-    subprocess.run(["iptables-restore"], input=iptables_config.encode("utf-8"))
 
 def change_pass(rootdir, username, passwd):
     subprocess.run(["chpasswd", "-R", rootdir],

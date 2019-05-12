@@ -114,7 +114,8 @@ def container_destroy(name):
     if confirm1 and confirm2:
         logger.info(f"Destroying container {clean_name}")
         logger.info("Shutting down container...")
-        subprocess.run(["systemctl", "stop", f"container_{clean_name}.service"])
+        subprocess.run(
+            ["systemctl", "stop", f"container_{clean_name}.service"])
         subprocess.run(["systemctl", "stop", f"container_{clean_name}.socket"])
         logger.info("Unmounting overlayfs...")
         utils.overlay_unmount_with_name(clean_name)
@@ -245,6 +246,7 @@ def container_disable(name):
     logger.success(
         f"Container {clean_name} stops handling new connections from port {port}.")
 
+
 @container.command("start")
 @click.argument("name")
 def container_start(name):
@@ -258,6 +260,7 @@ def container_start(name):
     subprocess.run(["systemctl", "start", f"container_{clean_name}.service"])
     logger.success(f"Container {clean_name} started.")
 
+
 @container.command("stop")
 @click.argument("name")
 def container_stop(name):
@@ -267,6 +270,7 @@ def container_stop(name):
     clean_name = slugify(name, word_boundary=True, separator="-")
     subprocess.run(["systemctl", "stop", f"container_{clean_name}.service"])
     logger.success(f"Container {clean_name} stopped.")
+
 
 @container.command("all")
 @click.argument("operation")
@@ -285,18 +289,8 @@ def container_all(ctx, operation):
             ctx.invoke(operator, name=machine)
         logger.success("Batch operation finished.")
 
-@click.command("broadcast")
-@click.option("--force", is_flag=True)
-def broadcast(force):
-    if os.getenv("SUDO_UID") is None and not force:
-        logger.error("Root privileges required.")
-        return
-    logger.info("Patching iptables config...")
-    utils.iptables_patch()
-    logger.success("Patch complete.")
 
 cli.add_command(init_all)
 cli.add_command(container)
-cli.add_command(broadcast)
 if __name__ == "__main__":
     cli()
