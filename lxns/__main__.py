@@ -13,6 +13,14 @@ from loguru import logger
 templates = Template()
 
 
+def check_root():
+    if os.getenv("SUDO_UID") is None:
+        logger.error("Root privileges required.")
+        return False
+    else:
+        return True
+
+
 @click.group()
 def cli():
     pass
@@ -26,8 +34,7 @@ def container():
 @click.command("init")
 @logger.catch
 def init_all():
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     logger.info("Creating dirs...")
     os.makedirs("containers")
@@ -58,8 +65,7 @@ def init_all():
 @click.argument("password")
 @logger.catch
 def container_create(name, password):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     logger.info(f"Creating container {clean_name} ...")
@@ -98,8 +104,7 @@ def container_create(name, password):
 @container.command("destroy")
 @click.argument("name")
 def container_destroy(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.exists(f"containers/machines/{clean_name}"):
@@ -140,8 +145,7 @@ def container_destroy(name):
 @container.command("mount")
 @click.argument("name")
 def container_mount(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.exists(f"containers/machines/{clean_name}"):
@@ -157,8 +161,7 @@ def container_mount(name):
 @container.command("unmount")
 @click.argument("name")
 def container_unmount(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.exists(f"containers/machines/{clean_name}"):
@@ -196,8 +199,7 @@ def container_info(name):
 @container.command("passwd")
 @click.argument("name")
 def container_passwd(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.exists(f"containers/machines/{clean_name}"):
@@ -217,8 +219,7 @@ def container_passwd(name):
 @container.command("enable")
 @click.argument("name")
 def container_enable(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.ismount(f"/var/lib/machines/{clean_name}"):
@@ -250,8 +251,7 @@ def container_disable(name):
 @container.command("start")
 @click.argument("name")
 def container_start(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     if not os.path.ismount(f"/var/lib/machines/{clean_name}"):
@@ -264,8 +264,7 @@ def container_start(name):
 @container.command("stop")
 @click.argument("name")
 def container_stop(name):
-    if os.getenv("SUDO_UID") is None:
-        logger.error("Root privileges required.")
+    if not check_root():
         return
     clean_name = slugify(name, word_boundary=True, separator="-")
     subprocess.run(["systemctl", "stop", f"container_{clean_name}.service"])
