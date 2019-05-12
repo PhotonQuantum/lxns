@@ -1,0 +1,5 @@
+[Unit]
+Description=Container ${name} managed by lxns
+[Service]
+ExecStart=/usr/bin/systemd-nspawn -jbD /var/lib/machines/${name}
+KillMode=process
