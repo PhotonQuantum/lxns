@@ -1,7 +1,7 @@
 #!/bin/python
 import subprocess
 import time
-import iptc.easy
+# import iptc.easy
 import os
 import re
 
@@ -15,7 +15,7 @@ def old_patch():
                        input=iptables_config.encode("utf-8"))
         print("Patched")
 
-
+'''
 def patch(port_list):
     chain_out = iptc.Chain(iptc.Table(iptc.Table.NAT), "OUTPUT")
     chain_prerouting = iptc.Chain(iptc.Table(iptc.Table.NAT), "PREROUTING")
@@ -46,6 +46,7 @@ def get_port_list():
 
 
 port_list = get_port_list()
+'''
 while True:
     old_patch()
     time.sleep(5)
