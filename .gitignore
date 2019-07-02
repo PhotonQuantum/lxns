@@ -109,3 +109,4 @@ venv.bak/
 # vim-ctrlspace config
 .cs_files
 .cs_workspaces
+index.pickle
