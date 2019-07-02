@@ -1,6 +1,11 @@
 [Exec]
 Boot=yes
-
+[Files]
+Bind=/var/cache/pacman/pkg
+Bind=/dev/nvidia0
+Bind=/dev/nvidiactl
+Bind=/dev/nvidia-uvm
+Bind=/dev/nvidia-uvm-tools
 [Network]
 VirtualEthernet=yes
 Port=${port}
