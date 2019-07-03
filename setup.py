@@ -14,6 +14,9 @@ setup(
     packages=[
         'lxns',
     ],
+    package_data={
+        "lxns": ["templates/*"]
+    },
     data_files=[
         ('/etc/bash_completion.d', ['extras/lxns.completion'])
     ],

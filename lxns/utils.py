@@ -1,8 +1,11 @@
 #!/bin/python
 import os
-import subprocess
-from contextlib import closing
 import socket
+import subprocess
+
+from contextlib import closing
+
+from . import consts
 
 
 def get_free_port():
@@ -31,13 +34,12 @@ def remove(path):
         pass
 
 
-def overlay_mount_with_name(name):
-    overlay_mount("containers/base/arch", f"containers/machines/{name}",
-                  f"containers/workdirs/{name}", f"/var/lib/machines/{name}")
+def overlay_mount_with_name(name, image):
+    overlay_mount(os.path.join(consts.IMAGE_DIR, image), os.path.join(consts.MACHINE_DIR, name), os.path.join(consts.WORK_DIR, name), os.path.join(consts.SYSTEMD_MOUNTPOINT, name))
 
 
 def overlay_unmount_with_name(name):
-    overlay_unmount(f"/var/lib/machines/{name}")
+    overlay_unmount(os.path.join(consts.SYSTEMD_MOUNTPOINT, name))
 
 
 def overlay_mount(lowerdir, upperdir, workdir, mountpoint):

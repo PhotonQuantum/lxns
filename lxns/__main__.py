@@ -1,18 +1,19 @@
 #!/bin/python
-import os
-import subprocess
-import pickle
+import tarfile
 import getpass
+import os
+import pickle
+import shutil
+import subprocess
 from functools import wraps
 
 import fire
 from loguru import logger
+from slugify import slugify
 
-import utils
-from template import Template
-from container import Container
-
-templates = Template()
+from . import consts
+from . import utils
+from .container import Container
 
 # TODO plugin system
 
@@ -57,19 +58,30 @@ class entrypoint(object):
 
     def __init__(self):
         # TODO save/load through plugins
-        if not os.path.exists("index.pickle"):
+
+        # Load container list
+        if not os.path.exists(consts.CONTAINER_INDEX):
             self._containers = []
         else:
-            with open("index.pickle", "rb") as f:
+            with open(consts.CONTAINER_INDEX, "rb") as f:
                 self._containers = pickle.load(f)
 
+        # Warn user if not root user
+        if os.getenv("SUDO_UID") is None:
+            logger.warning("Not root user. Read-only Mode.")
+
     def __del__(self):
-        with open("index.pickle", "wb") as f:
-            pickle.dump(self._containers, f, protocol=pickle.HIGHEST_PROTOCOL)
+        # Save container list
+        if not os.getenv("SUDO_UID") is None:
+            with open(consts.CONTAINER_INDEX, "wb") as f:
+                pickle.dump(self._containers, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     @root
-    def create(self, name):
-        container = Container(name)
+    def create(self, name, image):
+        if not os.path.exists(os.path.join(consts.IMAGE_DIR, image)):
+            logger.error("Image not found.")
+            return
+        container = Container(name, image)
         container.password = getpass.getpass()
         container.build()
         self._containers.append(container)
@@ -123,9 +135,40 @@ class entrypoint(object):
         else:
             logger.error("Container not found.")
 
+    @root
+    def stage_image(self, name, tar_file):
+        _name = name
+        name = slugify(name, word_boundary=True, separator="-")
+        if name != _name:
+            logger.warning(f"Image name changed to {name}.")
+        if os.path.exists(os.path.join(consts.IMAGE_DIR, name)):
+            logger.error("Image exists.")
+            return
+        os.makedirs(os.path.join(consts.IMAGE_DIR, name))
+        print(f"Decompressing {tar_file} to image {name}")
+        with tarfile.open(tar_file) as f:
+            f.extractall(os.path.join(consts.IMAGE_DIR, name))
+        print("Image staged.")
+
+    @root
+    def unstage_image(self, name):
+        if not os.path.exists(os.path.join(consts.IMAGE_DIR, name)):
+            logger.error("Image doesn't exist.")
+            return
+        elif name in map(lambda x: x.image, self._containers):
+            logger.error("Image is in use.")
+            print("Image is used by the following containers:")
+            print(map(lambda x: x.name, filter(
+                lambda x: x.image == name, self._containers)), sep="\n")
+            return
+        print("Deleting image")
+        shutil.rmtree(os.path.join(consts.IMAGE_DIR, name))
+        print("Image unstaged.")
+
 
 def main():
     fire.Fire(entrypoint, name="lxns")
+
 
 if __name__ == "__main__":
     main()
