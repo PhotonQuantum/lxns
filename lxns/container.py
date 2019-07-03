@@ -116,7 +116,7 @@ class Container(object):
 
         # Enable sshd unit and socket
         subprocess.run(["systemd-nspawn", "-D", os.path.join(consts.SYSTEMD_MOUNTPOINT, self.name), "ln", "-s", os.path.join(
-            consts.SYSTEMD_UNIT_DIR, "sshd-alter.socket"), os.path.join(consts.SYSTEMD_UNIT_DIR, "socket.target.wants")])
+            consts.SYSTEMD_UNIT_DIR, "sshd-alter.socket"), os.path.join(consts.SYSTEMD_UNIT_DIR, "sockets.target.wants")])
         utils.change_pass(os.path.join(
             consts.SYSTEMD_MOUNTPOINT, self.name), "root", self._password)
 
