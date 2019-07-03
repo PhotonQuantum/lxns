@@ -158,8 +158,8 @@ class entrypoint(object):
         elif name in map(lambda x: x.image, self._containers):
             logger.error("Image is in use.")
             print("Image is used by the following containers:")
-            print(map(lambda x: x.name, filter(
-                lambda x: x.image == name, self._containers)), sep="\n")
+            print(*list(map(lambda x: x.name, filter(
+                lambda x: x.image == name, self._containers))), sep="\n")
             return
         print("Deleting image")
         shutil.rmtree(os.path.join(consts.IMAGE_DIR, name))
