@@ -103,11 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# container files
-/containers
-
 # vim-ctrlspace config
 .cs_files
 .cs_workspaces
-index.pickle
 CS_SESSION
