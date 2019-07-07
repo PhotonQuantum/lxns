@@ -17,9 +17,6 @@ setup(
     package_data={
         "lxns": ["templates/*"]
     },
-    data_files=[
-        ('/etc/bash_completion.d', ['extras/lxns.completion'])
-    ],
     url='https://github.com/PhotonQuantum/lxns',
     keywords=['container'],
     classifiers=(
@@ -30,6 +27,7 @@ setup(
     ),
     install_requires=[
         'fire',
+        'prettytable',
         'loguru',
         'python-slugify'
     ],

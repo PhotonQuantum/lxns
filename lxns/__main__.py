@@ -10,6 +10,7 @@ from functools import wraps
 import fire
 from loguru import logger
 from slugify import slugify
+import prettytable
 
 from . import consts
 from . import utils
@@ -165,6 +166,12 @@ class entrypoint(object):
         shutil.rmtree(os.path.join(consts.IMAGE_DIR, name))
         print("Image unstaged.")
 
+    def list_containers(self):
+        table = prettytable.PrettyTable()
+        table.field_names = ["Name", "Port"]
+        for container in self._containers:
+            table.add_row([container.name, container.port])
+        print(table)
 
 def main():
     fire.Fire(entrypoint, name="lxns")
